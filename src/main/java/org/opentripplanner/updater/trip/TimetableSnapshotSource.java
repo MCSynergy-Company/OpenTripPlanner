@@ -1,5 +1,6 @@
 package org.opentripplanner.updater.trip;
 
+import static com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship.ADDED;
 import static com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship.SCHEDULED;
 import static org.opentripplanner.updater.spi.UpdateError.UpdateErrorType.INVALID_ARRIVAL_TIME;
 import static org.opentripplanner.updater.spi.UpdateError.UpdateErrorType.INVALID_DEPARTURE_TIME;
@@ -162,6 +163,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
     }
 
     Map<ScheduleRelationship, Integer> failuresByRelationship = new HashMap<>();
+    Map<ScheduleRelationship, Integer> successesByRelationship = new HashMap<>();
     List<Result<UpdateSuccess, UpdateError>> results = new ArrayList<>();
 
     if (updateIncrementality == FULL_DATASET) {
@@ -214,6 +216,14 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
         tripDescriptor.getScheduleRelationship(),
         SCHEDULED
       );
+
+      final TripPattern pattern = getPatternForTripId(tripId);
+      if(pattern == null) {
+        scheduleRelationship = ADDED;
+      } else if (pattern.getScheduledTimetable().getTripIndex(tripId) == -1) {
+        scheduleRelationship = ADDED;
+      }
+
       if (updateIncrementality == DIFFERENTIAL) {
         purgePatternModifications(scheduleRelationship, tripId, serviceDate);
       }
@@ -273,6 +283,13 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
         } else {
           failuresByRelationship.put(scheduleRelationship, 1);
         }
+      } else {
+        if (successesByRelationship.containsKey(scheduleRelationship)) {
+          var c = successesByRelationship.get(scheduleRelationship);
+          successesByRelationship.put(scheduleRelationship, ++c);
+        } else {
+          successesByRelationship.put(scheduleRelationship, 1);
+        }
       }
     }
 
@@ -281,6 +298,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
     if (updateIncrementality == FULL_DATASET) {
       logUpdateResult(feedId, failuresByRelationship, updateResult);
     }
+    LOG.info("[feedId: {}] Successes by scheduleRelationship {}", feedId, successesByRelationship);
     return updateResult;
   }
 
@@ -527,6 +545,10 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
         }
         return stopFound;
       })
+      .filter(st ->
+        (st.hasArrival() && st.getArrival().hasTime()) ||
+        (st.hasDeparture() && st.getDeparture().hasTime())
+      )
       .toList();
   }
 
@@ -598,7 +620,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
           return null;
         }
         previousTime = time;
-      } else {
+      } else if (index != 0) {
         debug(tripId, "Trip update misses arrival time, skipping.");
         return null;
       }
@@ -612,7 +634,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
           return null;
         }
         previousTime = time;
-      } else {
+      } else if (index != stopTimeUpdates.size()-1) {
         debug(tripId, "Trip update misses departure time, skipping.");
         return null;
       }

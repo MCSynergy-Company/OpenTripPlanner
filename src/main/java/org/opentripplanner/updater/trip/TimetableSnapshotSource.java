@@ -217,13 +217,6 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
         SCHEDULED
       );
 
-      final TripPattern pattern = getPatternForTripId(tripId);
-      if(pattern == null) {
-        scheduleRelationship = ADDED;
-      } else if (pattern.getScheduledTimetable().getTripIndex(tripId) == -1) {
-        scheduleRelationship = ADDED;
-      }
-
       if (updateIncrementality == DIFFERENTIAL) {
         purgePatternModifications(scheduleRelationship, tripId, serviceDate);
       }
@@ -545,10 +538,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
         }
         return stopFound;
       })
-      .filter(st ->
-        (st.hasArrival() && st.getArrival().hasTime()) ||
-        (st.hasDeparture() && st.getDeparture().hasTime())
-      )
+      .filter(st -> st.getScheduleRelationship() != StopTimeUpdate.ScheduleRelationship.SKIPPED)
       .toList();
   }
 
@@ -1130,7 +1120,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
    * @param tripId trip id
    * @return trip pattern or null if no trip pattern was found
    */
-  private TripPattern getPatternForTripId(FeedScopedId tripId) {
+  public TripPattern getPatternForTripId(FeedScopedId tripId) {
     Trip trip = transitEditorService.getTripForId(tripId);
     return transitEditorService.getPatternForTrip(trip);
   }

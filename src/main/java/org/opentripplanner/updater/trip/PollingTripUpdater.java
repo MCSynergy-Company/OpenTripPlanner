@@ -75,7 +75,7 @@ public class PollingTripUpdater extends PollingGraphUpdater {
   @Override
   public void runPolling() {
     // Get update lists from update source
-    List<TripUpdate> updates = updateSource.getUpdates();
+    List<TripUpdate> updates = updateSource.getUpdates(snapshotSource);
     var incrementality = updateSource.incrementalityOfLastUpdates();
 
     if (updates != null) {

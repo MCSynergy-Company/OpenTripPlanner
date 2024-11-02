@@ -1,0 +1,7 @@
+#!/bin/bash
+
+wget https://gtfs.ovapi.nl/nl/tripUpdates.pb
+wget https://gtfs.ovapi.nl/nl/trainUpdates.pb
+
+ProtoToJson -I ../src/main/proto -P gtfs-realtime.proto transit_realtime.FeedMessage < tripUpdates.pb > tripUpdates.json
+ProtoToJson -I ../src/main/proto -P gtfs-realtime.proto transit_realtime.FeedMessage < trainUpdates.pb > trainUpdates.json

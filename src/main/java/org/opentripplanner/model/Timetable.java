@@ -211,7 +211,11 @@ public class Timetable implements Serializable {
     List<Integer> skippedStopIndices = new ArrayList<>();
 
     // The GTFS-RT reference specifies that StopTimeUpdates are sorted by stop_sequence.
-    Iterator<StopTimeUpdate> updates = tripUpdate.getStopTimeUpdateList().iterator();
+    Iterator<StopTimeUpdate> updates = tripUpdate.getStopTimeUpdateList().stream()
+      .filter(update ->
+        (update.hasStopSequence() && newTimes.stopIndexOfGtfsSequence(update.getStopSequence()).isPresent()) ||
+        pattern.getStops().stream().anyMatch(stop -> stop.getId().getId().equals(update.getStopId()))
+      ).iterator();
     if (!updates.hasNext()) {
       LOG.warn("Won't apply zero-length trip update to trip {}.", tripId);
       return Result.failure(new UpdateError(feedScopedTripId, TOO_FEW_STOPS));

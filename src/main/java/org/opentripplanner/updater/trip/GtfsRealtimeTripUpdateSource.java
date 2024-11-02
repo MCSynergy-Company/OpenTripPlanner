@@ -15,6 +15,8 @@ import java.util.List;
 import org.opentripplanner.framework.io.OtpHttpClient;
 import org.opentripplanner.framework.io.OtpHttpClientFactory;
 import org.opentripplanner.framework.tostring.ToStringBuilder;
+import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.updater.spi.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +42,7 @@ public class GtfsRealtimeTripUpdateSource {
     otpHttpClient = new OtpHttpClientFactory().create(LOG);
   }
 
-  public List<TripUpdate> getUpdates() {
+  public List<TripUpdate> getUpdates(TimetableSnapshotSource snapshotSource) {
     FeedMessage feedMessage;
     List<FeedEntity> feedEntityList;
     List<TripUpdate> updates = null;
@@ -70,7 +72,37 @@ public class GtfsRealtimeTripUpdateSource {
       // Create List of TripUpdates
       updates = new ArrayList<>(feedEntityList.size());
       for (FeedEntity feedEntity : feedEntityList) {
-        if (feedEntity.hasTripUpdate()) updates.add(feedEntity.getTripUpdate());
+        if (feedEntity.hasTripUpdate()) {
+          var update = feedEntity.getTripUpdate().toBuilder();
+
+          if (update.getTrip().getScheduleRelationship() == GtfsRealtime.TripDescriptor.ScheduleRelationship.SCHEDULED) {
+            final var id = new FeedScopedId(feedId, update.getTrip().getTripId());
+            final TripPattern pattern = snapshotSource.getPatternForTripId(id);
+            if(pattern == null || pattern.getScheduledTimetable().getTripIndex(id) == -1) {
+              var builder = update.getTrip().toBuilder().setScheduleRelationship(GtfsRealtime.TripDescriptor.ScheduleRelationship.ADDED);
+              update.setTrip(builder.build());
+            }
+          }
+
+          int i = -1;
+          for (var stopTimeUpdate: update.getStopTimeUpdateList()) {
+            i++;
+            var builder = stopTimeUpdate.toBuilder();
+            if (!stopTimeUpdate.hasArrival() && !stopTimeUpdate.hasDeparture()) {
+              builder.setScheduleRelationship(TripUpdate.StopTimeUpdate.ScheduleRelationship.SKIPPED);
+            }
+            if (stopTimeUpdate.getScheduleRelationship() == TripUpdate.StopTimeUpdate.ScheduleRelationship.NO_DATA) {
+              if (update.getTrip().getScheduleRelationship() == GtfsRealtime.TripDescriptor.ScheduleRelationship.ADDED) {
+                builder.setScheduleRelationship(TripUpdate.StopTimeUpdate.ScheduleRelationship.SCHEDULED);
+              } else {
+                builder.clearArrival();
+                builder.clearDeparture();
+              }
+            }
+            update.setStopTimeUpdate(i, builder.build());
+          }
+          updates.add(update.build());
+        }
       }
     } catch (Exception e) {
       LOG.error("Failed to parse GTFS-RT feed from {}", url, e);

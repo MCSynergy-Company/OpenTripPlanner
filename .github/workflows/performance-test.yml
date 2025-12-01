@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev-2.x
+      - find_performance_error
 
 jobs:
   perf-test:

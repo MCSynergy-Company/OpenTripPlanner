@@ -161,6 +161,9 @@ class TripTimesUpdater {
           updatedPickups.put(i, PickDrop.CANCELLED);
           updatedDropoffs.put(i, PickDrop.CANCELLED);
           builder.withCanceled(i);
+          if (update.isArrivalValid() && update.isDepartureValid()) {
+            setArrivalAndDeparture(builder, i, update, today);
+          }
         } else if (scheduleRelationship == ScheduleRelationship.NO_DATA) {
           // Set status to NO_DATA and delays to 0.
           // Note: GTFS-RT requires NO_DATA stops to have no arrival departure times.

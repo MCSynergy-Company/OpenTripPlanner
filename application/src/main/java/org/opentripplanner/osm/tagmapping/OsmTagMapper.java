@@ -86,7 +86,7 @@ public class OsmTagMapper {
     props.setProperties("indoor=corridor", withModes(PEDESTRIAN).walkSafety(1.1));
 
     /* BICYCLE */
-    props.setProperties("highway=cycleway", withModes(BICYCLE).walkSafety(2.5).bicycleSafety(0.6));
+    props.setProperties("highway=cycleway", withModes(PEDESTRIAN_AND_BICYCLE).walkSafety(2.5).bicycleSafety(0.6));
 
     /* PEDESTRIAN_AND_BICYCLE */
     props.setProperties("mtb:scale=0", withModes(PEDESTRIAN_AND_BICYCLE).walkSafety(1.2));

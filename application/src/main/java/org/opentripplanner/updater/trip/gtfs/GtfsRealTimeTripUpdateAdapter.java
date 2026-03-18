@@ -592,14 +592,26 @@ public class GtfsRealTimeTripUpdateAdapter {
       .orElseGet(() -> {
         var builder = Route.of(tripId);
 
-        builder.withAgency(fallbackAgency(tripId.getFeedId()));
-        // Guess the route type as it doesn't exist yet in the specifications
-        // Bus. Used for short- and long-distance bus routes.
-        builder.withGtfsType(3);
-        builder.withMode(TransitMode.BUS);
+        var addedRouteExtension = AddedRoute.ofTripDescriptor(tripDescriptor);
+
+        var agency = transitEditorService
+          .findAgency(new FeedScopedId(tripId.getFeedId(), addedRouteExtension.agencyId()))
+          .orElseGet(() -> fallbackAgency(tripId.getFeedId()));
+
+        builder.withAgency(agency);
+
+        builder.withGtfsType(addedRouteExtension.routeType());
+        var mode = TransitModeMapper.mapMode(addedRouteExtension.routeType());
+        builder.withMode(mode);
+
         // Create route name
-        I18NString longName = NonLocalizedString.ofNullable(tripId.getId());
-        builder.withLongName(longName);
+        var name = Objects.requireNonNullElse(
+          addedRouteExtension.routeLongName(),
+          tripId.toString()
+        );
+        builder.withLongName(new NonLocalizedString(name));
+        builder.withUrl(addedRouteExtension.routeUrl());
+        
         return builder.build();
       });
   }

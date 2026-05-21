@@ -228,6 +228,19 @@ public class GTFSToTransitDataImportMapper {
       }
     }
 
+    // Link parent stations together if a station has a parent station defined in GTFS
+    for (Stop it : stops) {
+      if (it.getLocationType() == LOCATION_TYPE_STATION && it.getParentStation() != null) {
+        FeedScopedId stopId = new FeedScopedId(it.getId().getAgencyId(), it.getId().getId());
+        FeedScopedId parentId = new FeedScopedId(it.getId().getAgencyId(), it.getParentStation());
+        Station childStation = builder.siteRepository().stationById().get(stopId);
+        Station parentStation = builder.siteRepository().stationById().get(parentId);
+        if (childStation != null && parentStation != null) {
+          childStation.setParentStation(parentStation);
+        }
+      }
+    }
+
     // Map Stop, Entrance and PathwayNode, link to station
     for (Stop it : stops) {
       if (it.getLocationType() == LOCATION_TYPE_STOP) {

@@ -39,6 +39,11 @@ public class Station
   private final ZoneId timezone;
   private final boolean transfersNotAllowed;
 
+  private Station parentStation;
+
+  @JsonBackReference
+  private final Set<Station> childStations = new HashSet<>();
+
   // We serialize this class to json only for snapshot tests, and this creates cyclical structures
   @JsonBackReference
   private final Set<StopLocation> childStops = new HashSet<>();
@@ -62,6 +67,10 @@ public class Station
     this.description = builder.getDescription();
     this.url = builder.getUrl();
     this.timezone = builder.getTimezone();
+    this.parentStation = builder.getParentStation();
+    if (this.parentStation != null) {
+      this.parentStation.addChildStation(this);
+    }
 
     // Initialize the geometry with an empty set of children
     this.geometry = computeGeometry(coordinate, Set.of());
@@ -77,15 +86,41 @@ public class Station
   }
 
   public boolean includes(StopLocation stop) {
-    return childStops.contains(stop);
+    return childStops.contains(stop) || childStations.stream().anyMatch(c -> c.includes(stop));
   }
 
   public I18NString getName() {
     return name;
   }
 
+  public Station getParentStation() {
+    return parentStation;
+  }
+
+  public void setParentStation(Station parentStation) {
+    this.parentStation = parentStation;
+    if (parentStation != null) {
+      parentStation.addChildStation(this);
+    }
+  }
+
+  private void addChildStation(Station station) {
+    this.childStations.add(station);
+  }
+
+  public Collection<Station> getChildStations() {
+    return childStations;
+  }
+
   public Collection<StopLocation> getChildStops() {
-    return childStops;
+    if (childStations.isEmpty()) {
+      return childStops;
+    }
+    Set<StopLocation> all = new HashSet<>(childStops);
+    for (Station child : childStations) {
+      all.addAll(child.getChildStops());
+    }
+    return all;
   }
 
   @Override
@@ -161,7 +196,10 @@ public class Station
    * stops.
    */
   public GeometryCollection getGeometry() {
-    return geometry;
+    if (childStations.isEmpty()) {
+      return geometry;
+    }
+    return computeGeometry(coordinate, new HashSet<>(getChildStops()));
   }
 
   @Override
@@ -186,7 +224,11 @@ public class Station
       Objects.equals(shouldRouteToCentroid, other.shouldRouteToCentroid) &&
       Objects.equals(priority, other.priority) &&
       Objects.equals(url, other.url) &&
-      Objects.equals(timezone, other.timezone)
+      Objects.equals(timezone, other.timezone) &&
+      Objects.equals(
+        parentStation == null ? null : parentStation.getId(),
+        other.parentStation == null ? null : other.parentStation.getId()
+      )
     );
   }
 

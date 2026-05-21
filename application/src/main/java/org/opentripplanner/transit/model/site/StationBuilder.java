@@ -17,6 +17,7 @@ public class StationBuilder extends AbstractEntityBuilder<Station, StationBuilde
   private ZoneId timezone;
   private boolean transfersNotAllowed = false;
   private boolean shouldRouteToCentroid = false;
+  private Station parentStation;
 
   StationBuilder(FeedScopedId id) {
     super(id);
@@ -33,6 +34,16 @@ public class StationBuilder extends AbstractEntityBuilder<Station, StationBuilde
     this.timezone = original.getTimezone();
     this.transfersNotAllowed = original.isTransfersNotAllowed();
     this.shouldRouteToCentroid = original.shouldRouteToCentroid();
+    this.parentStation = original.getParentStation();
+  }
+
+  public Station getParentStation() {
+    return parentStation;
+  }
+
+  public StationBuilder withParentStation(Station parentStation) {
+    this.parentStation = parentStation;
+    return this;
   }
 
   public I18NString getName() {

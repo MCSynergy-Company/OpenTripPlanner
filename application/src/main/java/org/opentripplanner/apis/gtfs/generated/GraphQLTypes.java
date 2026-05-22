@@ -5219,12 +5219,14 @@ public class GraphQLTypes {
     private Boolean excludeRealTimeUpdates;
     private Boolean includePlannedCancellations;
     private Boolean includeRealTimeCancellations;
+    private Integer minNonCancelledResults;
 
     public GraphQLTimetablePreferencesInput(Map<String, Object> args) {
       if (args != null) {
         this.excludeRealTimeUpdates = (Boolean) args.get("excludeRealTimeUpdates");
         this.includePlannedCancellations = (Boolean) args.get("includePlannedCancellations");
         this.includeRealTimeCancellations = (Boolean) args.get("includeRealTimeCancellations");
+        this.minNonCancelledResults = (Integer) args.get("minNonCancelledResults");
       }
     }
 
@@ -5240,6 +5242,10 @@ public class GraphQLTypes {
       return this.includeRealTimeCancellations;
     }
 
+    public Integer getGraphQLMinNonCancelledResults() {
+      return this.minNonCancelledResults;
+    }
+
     public void setGraphQLExcludeRealTimeUpdates(Boolean excludeRealTimeUpdates) {
       this.excludeRealTimeUpdates = excludeRealTimeUpdates;
     }
@@ -5250,6 +5256,10 @@ public class GraphQLTypes {
 
     public void setGraphQLIncludeRealTimeCancellations(Boolean includeRealTimeCancellations) {
       this.includeRealTimeCancellations = includeRealTimeCancellations;
+    }
+
+    public void setGraphQLMinNonCancelledResults(Integer minNonCancelledResults) {
+      this.minNonCancelledResults = minNonCancelledResults;
     }
   }
 

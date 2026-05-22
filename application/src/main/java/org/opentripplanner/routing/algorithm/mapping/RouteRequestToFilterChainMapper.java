@@ -74,6 +74,9 @@ public class RouteRequestToFilterChainMapper {
     builder
       .withMaxNumberOfItineraries(Math.min(request.numItineraries(), MAX_NUMBER_OF_ITINERARIES))
       .withMaxNumberOfItinerariesCropSection(request.cropItinerariesAt())
+      .withMinNonCancelledResults(
+        request.preferences().transit().minNonCancelledResults()
+      )
       .withTransitGeneralizedCostLimit(params.transitGeneralizedCostLimit())
       .withBikeRentalDistanceRatio(params.bikeRentalDistanceRatio())
       .withParkAndRideDurationRatio(params.parkAndRideDurationRatio())

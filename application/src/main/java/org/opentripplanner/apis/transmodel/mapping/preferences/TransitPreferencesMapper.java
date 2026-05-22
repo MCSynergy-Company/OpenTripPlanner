@@ -34,6 +34,7 @@ public class TransitPreferencesMapper {
     callWith.argument("ignoreRealtimeUpdates", transit::withIgnoreRealtimeUpdates);
     callWith.argument("includePlannedCancellations", transit::withIncludePlannedCancellations);
     callWith.argument("includeRealtimeCancellations", transit::withIncludeRealtimeCancellations);
+    callWith.argument("minNonCancelledResults", transit::withMinNonCancelledResults);
     callWith.argument("relaxTransitGroupPriority", it ->
       transit.withRelaxTransitGroupPriority(
         RelaxCostType.mapToDomain((Map<String, Object>) it, CostLinearFunction.NORMAL)

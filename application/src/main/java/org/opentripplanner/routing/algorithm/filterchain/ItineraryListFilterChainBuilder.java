@@ -72,6 +72,7 @@ public class ItineraryListFilterChainBuilder {
   private ItineraryFilterDebugProfile debug = ItineraryFilterDebugProfile.OFF;
   private int maxNumberOfItineraries = NOT_SET;
   private ListSection maxNumberOfItinerariesCropSection = ListSection.TAIL;
+  private int minNonCancelledResults = 0;
   private CostLinearFunction removeTransitWithHigherCostThanBestOnStreetOnly;
   private boolean removeWalkAllTheWayResults;
   private boolean sameFirstOrLastTripFilter;
@@ -141,6 +142,18 @@ public class ItineraryListFilterChainBuilder {
     ListSection section
   ) {
     this.maxNumberOfItinerariesCropSection = section;
+    return this;
+  }
+
+  /**
+   * Minimum number of non-cancelled itineraries to include in the response. When set, the crop
+   * window expands until at least this many actionable (non-cancelled) itineraries are present,
+   * returning them alongside any cancelled trips found in that window.
+   * <p>
+   * Use {@code 0} to disable (default).
+   */
+  public ItineraryListFilterChainBuilder withMinNonCancelledResults(int value) {
+    this.minNonCancelledResults = value;
     return this;
   }
 
@@ -510,7 +523,8 @@ public class ItineraryListFilterChainBuilder {
         addSort(filters, SortOrderComparator.comparator(sortOrder));
         numItinerariesFilter = new NumItinerariesFilter(
           maxNumberOfItineraries,
-          maxNumberOfItinerariesCropSection
+          maxNumberOfItinerariesCropSection,
+          minNonCancelledResults
         );
         addRemoveFilter(filters, numItinerariesFilter);
       }

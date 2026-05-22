@@ -4873,6 +4873,14 @@ input TimetablePreferencesInput {
   be better. This option can't be set to true while `includeRealTimeUpdates` is false.
   """
   includeRealTimeCancellations: Boolean
+  """
+  Minimum number of non-cancelled itineraries to include in the response. Only relevant
+  when `includeRealTimeCancellations` is true. When set, the result window expands until
+  at least this many actionable itineraries are found, returning them alongside any
+  cancelled trips in that window. This ensures users always receive valid alternatives
+  during service disruptions without requiring a separate search.
+  """
+  minNonCancelledResults: Int
 }
 
 "Preferences related to transfers between transit vehicles (typically between stops)."

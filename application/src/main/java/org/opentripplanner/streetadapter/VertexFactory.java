@@ -53,7 +53,14 @@ public class VertexFactory {
   }
 
   public TransitBoardingAreaVertex transitBoardingArea(BoardingArea ba) {
-    return addToGraph(new TransitBoardingAreaVertex(ba.getId(), ba.getCoordinate(), ba.getName()));
+    return addToGraph(
+      new TransitBoardingAreaVertex(
+        ba.getId(),
+        ba.getCoordinate(),
+        ba.getName(),
+        ba.getWheelchairAccessibility()
+      )
+    );
   }
 
   public ElevatorHopVertex elevator(Vertex sourceVertex, String label) {

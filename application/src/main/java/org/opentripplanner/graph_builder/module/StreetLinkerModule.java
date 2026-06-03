@@ -18,12 +18,14 @@ import org.opentripplanner.street.linking.VehicleParkingHelper;
 import org.opentripplanner.street.linking.VertexLinker;
 import org.opentripplanner.street.model.edge.Edge;
 import org.opentripplanner.street.model.edge.StreetStationCentroidLink;
+import org.opentripplanner.street.model.edge.StreetTransitBoardingLink;
 import org.opentripplanner.street.model.edge.StreetTransitEntranceLink;
 import org.opentripplanner.street.model.edge.StreetTransitStopLink;
 import org.opentripplanner.street.model.edge.StreetVehicleParkingLink;
 import org.opentripplanner.street.model.edge.VehicleParkingEdge;
 import org.opentripplanner.street.model.vertex.StationCentroidVertex;
 import org.opentripplanner.street.model.vertex.StreetVertex;
+import org.opentripplanner.street.model.vertex.TransitBoardingAreaVertex;
 import org.opentripplanner.street.model.vertex.TransitEntranceVertex;
 import org.opentripplanner.street.model.vertex.TransitStopVertex;
 import org.opentripplanner.street.model.vertex.VehicleParkingEntranceVertex;
@@ -78,6 +80,7 @@ public class StreetLinkerModule implements GraphBuilderModule {
     if (graph.hasStreets) {
       linkTransitStops(graph, timetableRepository);
       linkTransitEntrances(graph);
+      linkTransitBoardingAreas(graph);
       linkStationCentroids(graph);
       linkVehicleParks(graph, issueStore);
     }
@@ -259,6 +262,30 @@ public class StreetLinkerModule implements GraphBuilderModule {
             StreetTransitEntranceLink.createStreetTransitEntranceLink(
               streetVertex,
               (TransitEntranceVertex) vertex
+            )
+          )
+      );
+    }
+  }
+
+  private void linkTransitBoardingAreas(Graph graph) {
+    LOG.info("Linking transit boarding areas to graph...");
+    for (TransitBoardingAreaVertex tBoardingArea : graph.getVerticesOfType(
+      TransitBoardingAreaVertex.class
+    )) {
+      vertexLinker.linkVertexPermanently(
+        tBoardingArea,
+        new TraverseModeSet(TraverseMode.WALK),
+        LinkingDirection.BIDIRECTIONAL,
+        (vertex, streetVertex) ->
+          List.of(
+            StreetTransitBoardingLink.createStreetTransitBoardingLink(
+              (TransitBoardingAreaVertex) vertex,
+              streetVertex
+            ),
+            StreetTransitBoardingLink.createStreetTransitBoardingLink(
+              streetVertex,
+              (TransitBoardingAreaVertex) vertex
             )
           )
       );

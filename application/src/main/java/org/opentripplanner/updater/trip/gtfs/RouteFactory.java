@@ -52,10 +52,7 @@ class RouteFactory {
     builder.withMode(mode);
 
     // Create route name
-    var name = Objects.requireNonNullElse(
-      addedRouteExtension.routeLongName(),
-      tripId.toString()
-    );
+    var name = Objects.requireNonNullElse(addedRouteExtension.routeLongName(), tripId.toString());
     builder.withLongName(new NonLocalizedString(name));
     builder.withUrl(addedRouteExtension.routeUrl());
     return builder.build();

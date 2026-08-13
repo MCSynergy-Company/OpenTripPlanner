@@ -6,20 +6,11 @@
     <parent>
         <groupId>org.opentripplanner</groupId>
         <artifactId>otp-root</artifactId>
-        <version>2.9.3-rider</version>
+        <version>2.9.2-rider</version>
     </parent>
 
-    <artifactId>astar</artifactId>
-    <name>OpenTripPlanner - A*</name>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.hubspot.maven.plugins</groupId>
-                <artifactId>prettier-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <artifactId>domain-core</artifactId>
+    <name>OpenTripPlanner - Domain Core</name>
 
     <dependencies>
         <dependency>
@@ -39,13 +30,12 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.23.0</version>
-            <scope>test</scope>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
         </dependency>
 
     </dependencies>
-
 </project>

@@ -19,3 +19,9 @@ files:
 - application/src/main/java/org/opentripplanner/transit/model/site/StationBuilder.java
 - application/src/main/java/org/opentripplanner/gtfs/mapping/GTFSToTransitDataImportMapper.java
 commit: 4db83a0a9b775a2b042ac4eed84edbc101fd0f2d
+
+Added links between stops and boarding areas
+commit: 13b901474b90e2063120af82b4adc8fd4329fae1
+
+turned on logging of incremental realtime updates
+commit: c846b3999eba0cbf0907314308719aaed3473402

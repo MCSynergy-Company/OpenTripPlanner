@@ -25,3 +25,6 @@ commit: 13b901474b90e2063120af82b4adc8fd4329fae1
 
 turned on logging of incremental realtime updates
 commit: c846b3999eba0cbf0907314308719aaed3473402
+
+added mfdz extensions to mqtt trip updates
+commit: 8158c9e52b7a3d01f0c4e8511c5d3b12ead60b04

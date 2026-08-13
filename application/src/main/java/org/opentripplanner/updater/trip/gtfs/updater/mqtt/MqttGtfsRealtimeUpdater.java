@@ -3,6 +3,7 @@ package org.opentripplanner.updater.trip.gtfs.updater.mqtt;
 import static org.opentripplanner.updater.trip.UpdateIncrementality.DIFFERENTIAL;
 import static org.opentripplanner.updater.trip.UpdateIncrementality.FULL_DATASET;
 
+import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.transit.realtime.GtfsRealtime;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
@@ -12,6 +13,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5ClientBuilder;
 import com.hivemq.client.mqtt.mqtt5.message.auth.Mqtt5SimpleAuth;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import de.mfdz.MfdzRealtimeExtensions;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -67,6 +69,8 @@ public class MqttGtfsRealtimeUpdater implements GraphUpdater {
 
   private final boolean fuzzyTripMatching;
 
+  private final ExtensionRegistry registry = ExtensionRegistry.newInstance();
+
   private Mqtt5AsyncClient client;
 
   public MqttGtfsRealtimeUpdater(
@@ -81,6 +85,9 @@ public class MqttGtfsRealtimeUpdater implements GraphUpdater {
     this.forwardsDelayPropagationType = parameters.forwardsDelayPropagationType();
     this.backwardsDelayPropagationType = parameters.backwardsDelayPropagationType();
     this.adapter = adapter;
+
+    MfdzRealtimeExtensions.registerAllExtensions(registry);
+
     // Set properties of realtime data snapshot source
     this.fuzzyTripMatching = parameters.fuzzyTripMatching();
     this.recordMetrics = TripUpdateMetrics.streaming(parameters);
@@ -163,7 +170,8 @@ public class MqttGtfsRealtimeUpdater implements GraphUpdater {
     try {
       // Decode message
       GtfsRealtime.FeedMessage feedMessage = GtfsRealtime.FeedMessage.parseFrom(
-        message.getPayloadAsBytes()
+        message.getPayloadAsBytes(),
+        registry
       );
       List<GtfsRealtime.FeedEntity> feedEntityList = feedMessage.getEntityList();
 

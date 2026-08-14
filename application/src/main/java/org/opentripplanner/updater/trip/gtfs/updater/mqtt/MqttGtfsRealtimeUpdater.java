@@ -64,7 +64,8 @@ public class MqttGtfsRealtimeUpdater implements GraphUpdater {
   private final BackwardsDelayPropagationType backwardsDelayPropagationType;
   private final String configRef;
   private final GtfsRealTimeTripUpdateAdapter adapter;
-  private final Consumer<UpdateResult> recordMetrics;
+  private final Consumer<UpdateResult> recordMetricsStream;
+  private final Consumer<UpdateResult> recordMetricsBatch;
   private WriteToGraphCallback saveResultOnGraph;
 
   private final boolean fuzzyTripMatching;
@@ -90,7 +91,8 @@ public class MqttGtfsRealtimeUpdater implements GraphUpdater {
 
     // Set properties of realtime data snapshot source
     this.fuzzyTripMatching = parameters.fuzzyTripMatching();
-    this.recordMetrics = TripUpdateMetrics.streaming(parameters);
+    this.recordMetricsStream = TripUpdateMetrics.streaming(parameters);
+    this.recordMetricsBatch = TripUpdateMetrics.batch(parameters);
     LOG.info("Creating streaming GTFS-RT TripUpdate updater subscribing to MQTT broker at {}", url);
   }
 
@@ -209,7 +211,7 @@ public class MqttGtfsRealtimeUpdater implements GraphUpdater {
           updateIncrementality,
           updates,
           feedId,
-          recordMetrics
+          updateIncrementality == DIFFERENTIAL ? recordMetricsStream : recordMetricsBatch
         )
       );
     }

@@ -28,3 +28,6 @@ commit: c846b3999eba0cbf0907314308719aaed3473402
 
 added mfdz extensions to mqtt trip updates
 commit: 8158c9e52b7a3d01f0c4e8511c5d3b12ead60b04
+
+split mqtt updater metrics into batch metrics for FULL_DATASET and stream for INCREMENTAL
+commit: b3322e916abd09ec5d8e70b6ac4301b360fc5404

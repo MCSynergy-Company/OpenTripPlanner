@@ -105,6 +105,10 @@ public class TransitPreferencesMapper {
       if (includeRealtimeCancellations != null) {
         transitPreferences.withIncludeRealtimeCancellations(includeRealtimeCancellations);
       }
+      var minNonCancelledResults = timetable.getGraphQLMinNonCancelledResults();
+      if (minNonCancelledResults != null) {
+        transitPreferences.withMinNonCancelledResults(minNonCancelledResults);
+      }
     }
   }
 }

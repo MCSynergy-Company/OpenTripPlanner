@@ -31,6 +31,7 @@ public final class TransitPreferences implements Serializable {
   private final boolean ignoreRealtimeUpdates;
   private final boolean includePlannedCancellations;
   private final boolean includeRealtimeCancellations;
+  private final int minNonCancelledResults;
   private final RaptorPreferences raptor;
   private final DirectTransitPreferences directTransitPreferences;
 
@@ -43,6 +44,7 @@ public final class TransitPreferences implements Serializable {
     this.ignoreRealtimeUpdates = false;
     this.includePlannedCancellations = false;
     this.includeRealtimeCancellations = false;
+    this.minNonCancelledResults = 0;
     this.raptor = RaptorPreferences.DEFAULT;
     this.directTransitPreferences = DirectTransitPreferences.DEFAULT;
   }
@@ -57,6 +59,7 @@ public final class TransitPreferences implements Serializable {
     this.ignoreRealtimeUpdates = builder.ignoreRealtimeUpdates;
     this.includePlannedCancellations = builder.includePlannedCancellations;
     this.includeRealtimeCancellations = builder.includeRealtimeCancellations;
+    this.minNonCancelledResults = builder.minNonCancelledResults;
     this.raptor = requireNonNull(builder.raptor);
     this.directTransitPreferences = requireNonNull(builder.directTransitPreferences);
   }
@@ -167,6 +170,17 @@ public final class TransitPreferences implements Serializable {
   }
 
   /**
+   * Minimum number of non-cancelled itineraries to include in the response. Only relevant when
+   * {@link #includeRealtimeCancellations()} is true. When set, the filter window expands until at
+   * least this many actionable itineraries are found alongside any cancelled trips in that window.
+   * <p>
+   * Default is {@code 0} (disabled).
+   */
+  public int minNonCancelledResults() {
+    return minNonCancelledResults;
+  }
+
+  /**
    * Set of options to use with Raptor. These are available here for testing purposes.
    */
   public RaptorPreferences raptor() {
@@ -198,6 +212,7 @@ public final class TransitPreferences implements Serializable {
       ignoreRealtimeUpdates == that.ignoreRealtimeUpdates &&
       includePlannedCancellations == that.includePlannedCancellations &&
       includeRealtimeCancellations == that.includeRealtimeCancellations &&
+      minNonCancelledResults == that.minNonCancelledResults &&
       raptor.equals(that.raptor) &&
       directTransitPreferences.equals(that.directTransitPreferences)
     );
@@ -215,6 +230,7 @@ public final class TransitPreferences implements Serializable {
       ignoreRealtimeUpdates,
       includePlannedCancellations,
       includeRealtimeCancellations,
+      minNonCancelledResults,
       raptor,
       directTransitPreferences
     );
@@ -245,6 +261,7 @@ public final class TransitPreferences implements Serializable {
         "includeRealtimeCancellations",
         includeRealtimeCancellations != DEFAULT.includeRealtimeCancellations
       )
+      .addNum("minNonCancelledResults", minNonCancelledResults, DEFAULT.minNonCancelledResults)
       .addObj("raptor", raptor, DEFAULT.raptor)
       .addObj(
         "directTransitPreferences",
@@ -268,6 +285,7 @@ public final class TransitPreferences implements Serializable {
     private boolean ignoreRealtimeUpdates;
     private boolean includePlannedCancellations;
     private boolean includeRealtimeCancellations;
+    private int minNonCancelledResults;
     private RaptorPreferences raptor;
     private DirectTransitPreferences directTransitPreferences;
 
@@ -282,6 +300,7 @@ public final class TransitPreferences implements Serializable {
       this.ignoreRealtimeUpdates = original.ignoreRealtimeUpdates;
       this.includePlannedCancellations = original.includePlannedCancellations;
       this.includeRealtimeCancellations = original.includeRealtimeCancellations;
+      this.minNonCancelledResults = original.minNonCancelledResults;
       this.raptor = original.raptor;
       this.directTransitPreferences = original.directTransitPreferences;
     }
@@ -345,6 +364,11 @@ public final class TransitPreferences implements Serializable {
 
     public Builder withIncludeRealtimeCancellations(boolean includeRealtimeCancellations) {
       this.includeRealtimeCancellations = includeRealtimeCancellations;
+      return this;
+    }
+
+    public Builder withMinNonCancelledResults(int minNonCancelledResults) {
+      this.minNonCancelledResults = minNonCancelledResults;
       return this;
     }
 

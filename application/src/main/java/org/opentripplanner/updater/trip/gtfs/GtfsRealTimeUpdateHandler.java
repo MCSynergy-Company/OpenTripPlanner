@@ -107,10 +107,7 @@ public class GtfsRealTimeUpdateHandler {
     }
 
     var updateResult = UpdateResult.of(successes, errors);
-
-    if (updateIncrementality == FULL_DATASET) {
-      ResultLogger.logUpdateResult(feedId, "gtfs-rt-trip-updates", updateResult);
-    }
+    ResultLogger.logUpdateResult(feedId, "gtfs-rt-trip-updates", updateResult);
     return updateResult;
   }
 
